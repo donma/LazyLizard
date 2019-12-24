@@ -1,0 +1,37 @@
+﻿<Window x:Class="LazyLizard.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LazyLizard" 
+        mc:Ignorable="d"
+        Title="Lazy Lizard" Height="378" Width="628" Icon="lazylizard.png" WindowState="Normal" ResizeMode="NoResize" Topmost="False"  WindowStartupLocation="CenterScreen">
+    <Grid Height="340" Margin="0,0,10,0">
+    
+        <TextBlock HorizontalAlignment="Left" Margin="10,10,0,0" Text="Skype Account:" TextWrapping="Wrap" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Left" Margin="10,40,0,0" Text="Password:" TextWrapping="Wrap" VerticalAlignment="Top"/>
+        <TextBox x:Name="txtAccount" HorizontalAlignment="Left" Margin="101,10,0,0" Text="" 
+                 TextWrapping="Wrap" VerticalAlignment="Top" Width="310"/>
+        <PasswordBox x:Name="txtPass" HorizontalAlignment="Left" Margin="101,40,0,0"
+                     VerticalAlignment="Top" Password="" Width="310"  />
+
+        <TextBlock HorizontalAlignment="Left" Margin="10,70,0,0" 
+                   Text="內文" TextWrapping="Wrap" 
+                   VerticalAlignment="Top"/>
+        <TextBox x:Name="txtMessage"  TextWrapping="Wrap" AcceptsReturn="True" 
+                  VerticalScrollBarVisibility="Auto"  HorizontalAlignment="Left" 
+                  Margin="10,90,0,0" Text=""
+                 VerticalAlignment="Top" Width="400" Height="90"/>
+        <Button x:Name="btnGetImagePath" Content="選擇圖片" HorizontalAlignment="Left" Margin="11,192,0,0" VerticalAlignment="Top" Click="btnGetImagePath_Click"/>
+        <Image x:Name="imageUploadPreview" HorizontalAlignment="Left" Height="114" Margin="11,216,0,0" VerticalAlignment="Top" Width="299"/>
+        <Button x:Name="btnSent" Content="發送" HorizontalAlignment="Left" Margin="315,290,0,0" VerticalAlignment="Top" Width="96" Height="39" Click="btnSent_Click"/>
+        <TextBlock x:Name="txtImageFilePath" HorizontalAlignment="Left"
+                   Margin="68,195,0,0" Text="
+                   " TextWrapping="Wrap" VerticalAlignment="Top" FontSize="7" Foreground="Gray"/>
+        <TextBox x:Name="txtLog"  TextWrapping="Wrap" AcceptsReturn="True" 
+            VerticalScrollBarVisibility="Auto"  HorizontalAlignment="Left" 
+            Margin="415,0,0,0" Text=""
+            VerticalAlignment="Center" IsReadOnly="True" Width="187" Height="320" Grid.ColumnSpan="2" FontSize="9"/>
+
+    </Grid>
+</Window>
