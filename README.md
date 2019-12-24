@@ -6,7 +6,7 @@ Skype4COM 不再支援囉。這是一套基於　.net Core WPF + C#　開發的�
 
 Skype4COM support is not available.
 A tool developed based on .net Core WPF + C#
-which can broadcast message and image to your contacts not include what you blocked.
+which can broadcast message and image to your Skype contacts not include what you blocked.
 The project doesn't contain EXE file. You should complie it first.
 
 ps.　skype 改規格後可能就不能用，之後我有時間再繼續回維護吧（這段話我懶得翻譯成英文了）
