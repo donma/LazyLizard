@@ -9,3 +9,18 @@ A tool developed based on .net Core WPF + C#
 which can broadcast message and image to your contacts not include what you blocked.
 The project doesn't contain EXE file. You should complie it first.
 
+ps.　skype 改規格後可能就不能用，之後我有時間再繼續回維護吧（這段話我懶得翻譯成英文了）
+
+![alt SampleResult](https://github.com/donma/LazyLizard/blob/master/snap/snapskype.jpg?raw=true)
+
+Reference:
+
+https://skpy.t.allofti.me/protocol/index.html
+
+https://no2don.blogspot.com/search/label/Skype
+
+http://wayneprogramcity.blogspot.com/2016/05/skype-apicskype.html
+
+
+
+
