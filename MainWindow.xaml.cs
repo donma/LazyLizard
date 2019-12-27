@@ -550,11 +550,7 @@ namespace LazyLizard
             {
                 if (txtImageFilePath.Text.Trim().Length > 0)
                 {
-                    var objectId = LogicHandler.SendMessage.CreateObject(step5Result.Item4, step5Result.Item1, logPath);
-
-                    LogicHandler.SendMessage.UploadFileToObject(step5Result.Item4, objectId, txtImageFilePath.Text.Trim(), logPath);
-
-                    var fileInfo = new FileInfo(txtImageFilePath.Text.Trim());
+                   
                     var userCount = 0;
                     foreach (var c in step7Result.contacts)
                     {
@@ -562,7 +558,12 @@ namespace LazyLizard
                         {
                             try
                             {
+                                var objectId = LogicHandler.SendMessage.CreateObject(step5Result.Item4, step5Result.Item1, logPath);
+                                LogicHandler.SendMessage.UploadFileToObject(step5Result.Item4, objectId, txtImageFilePath.Text.Trim(), logPath);
+                                var fileInfo = new FileInfo(txtImageFilePath.Text.Trim());
+                                
                                 LogicHandler.SendMessage.SendIImage(step6Result.Item1, objectId, c.person_id, fileInfo.Name, logPath);
+                                
                                 Thread.Sleep(196);
                                 userCount++;
                                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate
