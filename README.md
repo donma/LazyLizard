@@ -11,7 +11,7 @@ The project doesn't contain EXE file. You should complie it first.
 
 ps.　skype 改規格後可能就不能用，之後我有時間再繼續維護吧（這段話我懶得翻譯成英文了）
 
-![alt SampleResult](https://github.com/donma/LazyLizard/blob/master/snap/snapskype.jpg?raw=true)
+![alt SampleResult](https://github.com/donma/codenote/blob/master/blogimages/snapskype.jpg?raw=true)
 
 Reference:
 
