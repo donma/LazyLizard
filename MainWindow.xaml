@@ -5,33 +5,61 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LazyLizard" 
         mc:Ignorable="d"
-        Title="Lazy Lizard" Height="378" Width="628" Icon="lazylizard.png" WindowState="Normal" ResizeMode="NoResize" Topmost="False"  WindowStartupLocation="CenterScreen">
-    <Grid Height="340" Margin="0,0,10,0">
-    
+        Title="Lazy Lizard" Height="500" Width="628"
+        Icon="lazylizard.png" WindowState="Normal" 
+        ResizeMode="NoResize" Topmost="False"  
+        WindowStartupLocation="CenterScreen" 
+        PreviewMouseDoubleClick="Window_PreviewMouseDoubleClick">
+    <Grid Height="500" Margin="0,0,10,0" HorizontalAlignment="Stretch"  VerticalAlignment="Top">
+
         <TextBlock HorizontalAlignment="Left" Margin="10,10,0,0" Text="Skype Account:" TextWrapping="Wrap" VerticalAlignment="Top"/>
         <TextBlock HorizontalAlignment="Left" Margin="10,40,0,0" Text="Password:" TextWrapping="Wrap" VerticalAlignment="Top"/>
-        <TextBox x:Name="txtAccount" HorizontalAlignment="Left" Margin="101,10,0,0" Text="" 
-                 TextWrapping="Wrap" VerticalAlignment="Top" Width="310"/>
+        <TextBox x:Name="txtAccount" 
+                 
+                 HorizontalAlignment="Left" Margin="101,10,0,0" 
+                 TextWrapping="Wrap" VerticalAlignment="Top" Width="208" TextChanged="txtAccount_TextChanged"/>
         <PasswordBox x:Name="txtPass" HorizontalAlignment="Left" Margin="101,40,0,0"
-                     VerticalAlignment="Top" Password="" Width="310"  />
+                     VerticalAlignment="Top" Width="208"  />
 
         <TextBlock HorizontalAlignment="Left" Margin="10,70,0,0" 
                    Text="內文" TextWrapping="Wrap" 
                    VerticalAlignment="Top"/>
-        <TextBox x:Name="txtMessage"  TextWrapping="Wrap" AcceptsReturn="True" 
+        <TextBox x:Name="txtMessage"  TextWrapping="Wrap" AcceptsReturn="True"  
                   VerticalScrollBarVisibility="Auto"  HorizontalAlignment="Left" 
                   Margin="10,90,0,0" Text=""
-                 VerticalAlignment="Top" Width="400" Height="90"/>
+                 VerticalAlignment="Top" Width="299" Height="90"/>
         <Button x:Name="btnGetImagePath" Content="選擇圖片" HorizontalAlignment="Left" Margin="11,192,0,0" VerticalAlignment="Top" Click="btnGetImagePath_Click"/>
-        <Image x:Name="imageUploadPreview" HorizontalAlignment="Left" Height="114" Margin="11,216,0,0" VerticalAlignment="Top" Width="299"/>
-        <Button x:Name="btnSent" Content="發送" HorizontalAlignment="Left" Margin="315,290,0,0" VerticalAlignment="Top" Width="96" Height="39" Click="btnSent_Click"/>
+        <Image x:Name="imageUploadPreview" HorizontalAlignment="Left" Height="114" Margin="11,216,0,0" VerticalAlignment="Top" Width="196"/>
+        <Button x:Name="btnSent" Content="發送" HorizontalAlignment="Left" Margin="213,277,0,0" VerticalAlignment="Top" Width="96" Height="39" Click="btnSent_Click" IsEnabled="False"/>
         <TextBlock x:Name="txtImageFilePath" HorizontalAlignment="Left"
-                   Margin="68,195,0,0" Text="
+                   Margin="164,199,0,0" Text="
                    " TextWrapping="Wrap" VerticalAlignment="Top" FontSize="7" Foreground="Gray"/>
-        <TextBox x:Name="txtLog"  TextWrapping="Wrap" AcceptsReturn="True" 
-            VerticalScrollBarVisibility="Auto"  HorizontalAlignment="Left" 
-            Margin="415,0,0,0" Text=""
-            VerticalAlignment="Center" IsReadOnly="True" Width="187" Height="320" Grid.ColumnSpan="2" FontSize="9"/>
+        <TextBox x:Name="txtLog"  TextWrapping="Wrap"
+                 AcceptsReturn="True" 
+            VerticalScrollBarVisibility="Auto" 
+                 HorizontalAlignment="Left" 
+            Margin="10,350,0,0" Text=""
+            VerticalAlignment="Top" IsReadOnly="True" Width="299" Height="90" FontSize="9"/>
+        <Button x:Name="btnLoadContact" Content="登入載入聯絡人" 
+                HorizontalAlignment="Left" Margin="213,233,0,0" 
+                VerticalAlignment="Top" Width="96" Height="39" Click="btnLoadContact_Click" 
+                />
+        <ListBox x:Name="listContact" Margin="314,50,0,84"  >
+
+        </ListBox>
+        <Button Content="Select All" 
+                HorizontalAlignment="Left"
+                Margin="465,26,0,0" 
+                Name="btnSelectAll"
+                VerticalAlignment="Top" Click="btnSelectAll_Click"/>
+        <Button Content="UnSelect All" 
+            HorizontalAlignment="Left"
+            Margin="525,26,0,0" 
+            x:Name="btnUnSelectAll"
+            VerticalAlignment="Top" Click="btnUnSelectAll_Click" />
+        <Button x:Name="btnSaveContact" Content="儲存清單" HorizontalAlignment="Left" Margin="486,421,0,0" VerticalAlignment="Top" Click="btnSaveContact_Click"/>
+        <Button x:Name="btnReadContact" Content="讀取清單" HorizontalAlignment="Left" Margin="543,421,0,0" VerticalAlignment="Top" Click="btnReadContact_Click"/>
+        <Button x:Name="btnClearImage" Content="清除圖片" HorizontalAlignment="Left" Margin="68,192,0,0" VerticalAlignment="Top" Click="btnClearImage_Click"/>
 
     </Grid>
 </Window>

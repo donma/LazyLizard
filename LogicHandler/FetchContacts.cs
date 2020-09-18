@@ -13,8 +13,7 @@ namespace LazyLizard.LogicHandler
 
             //Contact list
             string requestUriStringUL = "https://contacts.skype.com/contacts/v2/users/" + skypeId + "/contacts";
-            //    string requestUriStringUL = "https://contacts.skype.com/contacts/v1/users/" + skypeid + "/contacts/";
-
+      
             HttpWebRequest httpWebRequest10 = WebRequest.Create(requestUriStringUL) as HttpWebRequest;
             httpWebRequest10.Method = "GET";
             httpWebRequest10.Headers.Add("X-Skypetoken", skypeToken);

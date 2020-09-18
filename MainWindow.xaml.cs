@@ -1,11 +1,14 @@
 ﻿using LazyLizard.LogicHandler;
 using Microsoft.Win32;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
@@ -17,11 +20,36 @@ namespace LazyLizard
     public partial class MainWindow : Window
     {
 
+
+        Tuple<string, string, string, string, Dictionary<string, string>> step5Result = null;
+        Tuple<string, string, string> step6Result = null;
+
         public string SelfTrasationId { get; set; }
+
+        public bool IsDebug { get; set; }
+
+        public string Server2 = "https://client-s.gateway.messenger.live.com/v1/users/ME/";
+
+        public void CheckDebug()
+        {
+            if (IsDebug)
+            {
+
+                btnLoadContact.Visibility = Visibility.Visible;
+            }
+            else
+            {
+
+                btnLoadContact.Visibility = Visibility.Hidden;
+            }
+        }
         public MainWindow()
         {
             InitializeComponent();
+            IsDebug = true;
+            CheckDebug();
 
+            MessageBox.Show("版本為 0.4.200603 .", "版本資訊", MessageBoxButton.OK, MessageBoxImage.Information);
             //Reference :
             //https://skpy.t.allofti.me/
             //http://wayneprogramcity.blogspot.com/2016/05/skype-apicskype.html
@@ -63,27 +91,240 @@ namespace LazyLizard
         private void btnSent_Click(object sender, RoutedEventArgs e)
         {
 
+
+            if (string.IsNullOrEmpty(txtMessage.Text.Trim()) && string.IsNullOrEmpty(txtImageFilePath.Text.Trim()))
+            {
+                MessageBox.Show("You hava nothing to send.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var logPath = AppDomain.CurrentDomain.BaseDirectory + "log" + System.IO.Path.DirectorySeparatorChar + SelfTrasationId + System.IO.Path.DirectorySeparatorChar;
+
+
+            #region STEP8 
+
+            if (string.IsNullOrEmpty(txtImageFilePath.Text.Trim()))
+            {
+                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate
+                {
+                    AddLog("STEP8- 廣播文字..");
+                }));
+            }
+
+            try
+            {
+                if (txtMessage.Text.Trim().Length > 0 && txtImageFilePath.Text.Trim().Length <= 0)
+                {
+                    var userCount = 0;
+                    var message = txtMessage.Text;
+                    List<string> allSend = new List<string>();
+                    btnSent.IsEnabled = false;
+                    MessageBox.Show("有點耐心等待，好了我會跟你說");
+
+                    foreach (CheckBox c in listContact.Items)
+                    {
+                        if (c.IsChecked.Value)
+                        {
+                            allSend.Add(c.Tag.ToString() + "|" + c.Content.ToString());
+
+                        }
+
+                    }
+
+
+                    //foreach (var id in allSend)
+                    //{
+                    Parallel.ForEach(allSend, new ParallelOptions { MaxDegreeOfParallelism = 2 }, id =>
+                     {
+                         try
+                         {
+
+                             LogicHandler.SendMessage.SendText(step6Result.Item1, message, id.Split('|')[0],Server2);
+
+                             userCount++;
+                             AddLog("已寄送文字給" + id.Split('|')[1] + " ,SUCCESS");
+                       
+                         }
+                         catch (Exception ex)
+                         {
+                             Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate
+                             {
+                                 AddLog("ERROR 已寄送文字給" + id.Split('|')[1] + " , 失敗，請手動寄送" + ex.Message);
+
+                             }));
+
+                             // continue;
+                         }
+                         // });
+
+                         //}
+                     });
+
+                    Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate
+                    {
+                        //     AddLog("STEP8 寄送成功  !!");
+                        AddLog("STEP8 寄送 " + userCount + " 筆");
+                    }));
+
+                    MessageBox.Show("Success");
+                    btnSent.IsEnabled = true;
+
+                }
+                else
+                {
+                    // AddLog("STEP8 無文字所以跳過不廣播了  !!");
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                new Thread(() =>
+                {
+                    AddLog("STEP8 出錯了:" + ex.Message + "," + ex.StackTrace);
+                }).Start();
+
+                File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "log" + System.IO.Path.DirectorySeparatorChar + SelfTrasationId + ".log", txtLog.Text);
+
+
+                MessageBox.Show("STEP8 發生錯誤，進行中止");
+                return;
+            }
+
+
+            #endregion
+
+
+            #region STEP9
+
+
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate
+            {
+                AddLog("STEP9- 廣播圖片..");
+            }));
+
+
+
+            if (txtImageFilePath.Text.Trim().Length > 0)
+            {
+
+                var userCount = 0;
+                var byteSource = File.ReadAllBytes(txtImageFilePath.Text.Trim());
+                var fileInfo = new FileInfo(txtImageFilePath.Text.Trim());
+                var message = txtMessage.Text.Trim();
+                var imagePath = txtImageFilePath.Text.Trim();
+                List<string> allSend = new List<string>();
+
+
+                foreach (CheckBox c in listContact.Items)
+                {
+                    if (c.IsChecked.Value)
+                    {
+                        allSend.Add(c.Tag.ToString() + "|" + c.Content.ToString());
+                        //MessageBox.Show(c.Tag.ToString());
+                    }
+
+                }
+
+                this.btnSent.IsEnabled = false;
+
+                MessageBox.Show("需要點時間，請耐心等待，好了我會跟你說 ");
+
+
+                foreach (var id in allSend)
+                {
+
+                    var objectId = LogicHandler.SendMessage.CreateObject(step5Result.Item4, step5Result.Item1, logPath);
+
+                    LogicHandler.SendMessage.UploadFileToObject(step5Result.Item4, objectId, imagePath, logPath, byteSource);
+
+                    try
+                    {
+                        LogicHandler.SendMessage.SendIImage(step6Result.Item1, objectId, id.Split('|')[0], fileInfo.Name, message, Server2);
+
+                        userCount++;
+                        //AddLog("已寄送圖片給" + id.Split('|')[1]);
+                        Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate
+                        {
+                            AddLog("已寄送圖片給" + id.Split('|')[1] + ", " + userCount + "/" + allSend.Count());
+
+                        }));
+
+
+                    }
+                    catch (Exception ex)
+                    {
+                        Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate
+                        {
+                            AddLog("ERROR 已寄送圖片給" + id.Split('|')[1] + " , 失敗，請手動寄送" + ex.Message);
+
+                        }));
+                    }
+                }
+
+                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate
+                {
+                    AddLog("STEP9 發送完成  !!");
+                }));
+
+                this.btnSent.IsEnabled = true;
+                MessageBox.Show("Success");
+            }
+            else
+            {
+                AddLog("STEP9 無圖片所以跳過不廣播了  !!");
+            }
+
+
+            //Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate
+            //        {
+            //            //  AddLog("STEP9 寄送圖片成功  !!");
+            //            AddLog("STEP9 寄送 " + userCount + " 筆");
+            //        }));
+
+            #endregion
+        }
+
+
+
+
+
+
+
+        private void Window_PreviewMouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void txtAccount_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            if (txtAccount.Text.ToLower() == "imdm")
+            {
+                IsDebug = true;
+                CheckDebug();
+            }
+        }
+
+        private void btnLoadContact_Click(object sender, RoutedEventArgs e)
+        {
+            btnLoadContact.IsEnabled = false;
             var PPFT = "";
             var MSPRequ = "";
             var MSPOK = "";
 
-
+            listContact.Items.Clear();
             //Check Parameter First.
             if (string.IsNullOrEmpty(txtAccount.Text))
             {
+                btnLoadContact.IsEnabled = true;
                 MessageBox.Show("Account is Empty", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
 
                 return;
             }
             if (string.IsNullOrEmpty(txtPass.Password))
             {
+                btnLoadContact.IsEnabled = true;
                 MessageBox.Show("Password is Empty", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            if (string.IsNullOrEmpty(txtMessage.Text.Trim()) && string.IsNullOrEmpty(txtImageFilePath.Text.Trim()))
-            {
-                MessageBox.Show("You hava nothing to send.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -108,6 +349,7 @@ namespace LazyLizard
             }));
 
             #endregion
+
 
             #region STEP1
             //STEP1 - Get PPFT,MSPRequ,MSPOK
@@ -161,6 +403,7 @@ namespace LazyLizard
             }
 
             #endregion
+
 
             #region STEP2
             //STEP2 - 1st. Login To Live 
@@ -247,7 +490,7 @@ namespace LazyLizard
                         AddLog("STEP3 穿越失敗，沒有拿到 參數");
                     }));
 
-                    MessageBox.Show("STEP3 發生錯誤，進行中止:沒有拿到 t and nextpath");
+                    MessageBox.Show("STEP3 發生錯誤，進行中止:沒有拿到 t and nextpath，可能是你打開二次驗證請關閉，或是你帳號密碼錯誤");
                     File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "log" + System.IO.Path.DirectorySeparatorChar + SelfTrasationId + ".log", txtLog.Text);
                     return;
 
@@ -267,6 +510,7 @@ namespace LazyLizard
             }
 
             #endregion
+
 
             #region STEP4
 
@@ -320,7 +564,6 @@ namespace LazyLizard
 
             #region STEP5
 
-            Tuple<string, string, string, string, Dictionary<string, string>> step5Result = null;
             Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate
             {
                 AddLog("STEP5- 開始取的 skypeId and token..");
@@ -369,7 +612,6 @@ namespace LazyLizard
 
 
             #region STEP6
-            Tuple<string, string> step6Result = null;
 
             Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate
             {
@@ -379,6 +621,13 @@ namespace LazyLizard
             try
             {
                 step6Result = LogicHandler.FetchRegistToken.GetRegistToken(step5Result.Item4, logPath);
+                Server2 = step6Result.Item3;
+                //if (step6Result.Item1 == "" && step6Result.Item2 != "")
+                //{
+                //    var c = step6Result.Item2;
+                //    Server2 = c.Replace("endpoints", "");
+                //    step6Result = LogicHandler.FetchRegistToken.GetRegistToken(step5Result.Item4, logPath, c);
+                //}
 
                 if (!string.IsNullOrEmpty(step6Result.Item1))
                 {
@@ -435,6 +684,30 @@ namespace LazyLizard
                         AddLog("STEP7 取得 朋友清單 成功  !!");
                     }));
 
+                    var i = 0;
+                    step7Result.contacts = step7Result.contacts.OrderBy(x => x.display_name).ToList();
+                    foreach (var f in step7Result.contacts)
+                    {
+                        if (!f.blocked)
+                        {
+                            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate
+                            {
+                                //    AddLog(f.display_name + "," + f.blocked);
+                                //for (var i = 1; i <= 10; i++)
+                                //{
+                                
+                                var c = new CheckBox();
+                                c.Content = f.display_name + " | " + f.person_id;
+                                c.Tag = f.person_id;
+
+                                listContact.Items.Add(c);
+                                //   }
+                                i++;
+                            }));
+                        }
+                    }
+                    MessageBox.Show("載入  " + i + " 筆聯絡人，不包含封鎖資料 !");
+
                 }
                 else
                 {
@@ -461,161 +734,108 @@ namespace LazyLizard
                 return;
             }
 
-
+            this.btnSent.IsEnabled = true;
+            btnLoadContact.IsEnabled = false;
             #endregion
+        }
 
-
-            #region STEP8 
-
-            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate
+        private void btnSelectAll_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (var item in listContact.Items)
             {
-                AddLog("STEP8- 廣播文字..");
-            }));
 
-            try
+                var c = (item as CheckBox);
+                c.IsChecked = true;
+
+            }
+        }
+
+        private void btnUnSelectAll_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (var item in listContact.Items)
             {
-                if (txtMessage.Text.Trim().Length > 0)
+
+                var c = (item as CheckBox);
+                c.IsChecked = false;
+
+            }
+        }
+
+        private void btnSaveContact_Click(object sender, RoutedEventArgs e)
+        {
+            var res = new List<string>();
+            foreach (CheckBox item in listContact.Items)
+            {
+                if (item.IsChecked.Value)
                 {
-                    var userCount = 0;
-                    foreach (var c in step7Result.contacts)
-                    {
-                        try
-                        {
-                            if (!c.blocked)
-                            {
-                                LogicHandler.SendMessage.SendText(step6Result.Item1, txtMessage.Text, c.person_id);
-                                Thread.Sleep(196);
-                                userCount++;
-                                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate
-                                {
-                                    AddLog("已寄送文字給" + c.display_name + " , 第" + userCount + "筆");
-                                }));
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate
-                            {
-                                AddLog("ERROR 已寄送文字給" + c.display_name + " , 失敗，請手動寄送" + ex.Message);
+                    res.Add(item.Tag.ToString());
+                }
 
-                            }));
-                         
-                            continue;
+            }
+
+            var str = JsonConvert.SerializeObject(res);
+            str = EncryptUtil.EncAesString(str, "LazyLizard_LazyLizard_LazyLizard");
+
+            SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+            dlg.FileName = "名單"; // Default file name
+            dlg.DefaultExt = ".lazylizard"; // Default file extension
+            dlg.Filter = "LazyLizard documents (.lazylizard)|*.lazylizard"; // Filter files by extension
+
+            Nullable<bool> result = dlg.ShowDialog();
+
+            if (result == true)
+            {
+
+                string filename = dlg.FileName;
+
+                File.WriteAllText(filename, str);
+
+                MessageBox.Show("Save Success !!");
+            }
+
+        }
+
+        private void btnReadContact_Click(object sender, RoutedEventArgs e)
+        {
+            var dlg = new Microsoft.Win32.OpenFileDialog();
+            dlg.DefaultExt = ".lazylizard"; // Default file extension
+            dlg.Filter = "LazyLizard documents (.lazylizard)|*.lazylizard"; // Filter files by extension
+
+            Nullable<bool> result = dlg.ShowDialog();
+
+            if (result == true)
+            {
+                try
+                {
+                    string filename = dlg.FileName;
+                    var str = File.ReadAllText(filename);
+
+                    var data = JsonConvert.DeserializeObject<List<string>>(EncryptUtil.DescAesString(str, "LazyLizard_LazyLizard_LazyLizard"));
+
+                    foreach (CheckBox item in listContact.Items)
+                    {
+                        if (data.Any(x => x == item.Tag.ToString()))
+                        {
+                            item.IsChecked = true;
                         }
+                        else
+                        {
+                            item.IsChecked = false;
+                        }
+
                     }
-
-
-                    Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate
-                    {
-                        AddLog("STEP8 寄送成功  !!");
-                        AddLog("STEP8 寄送 " + userCount + " 筆");
-                    }));
-
                 }
-                else
+                catch (Exception ex)
                 {
-                    AddLog("STEP8 無文字所以跳過不廣播了  !!");
+                    MessageBox.Show("發生錯誤:" + ex.Message);
                 }
-
-
             }
-            catch (Exception ex)
-            {
-                new Thread(() =>
-                {
-                    AddLog("STEP8 出錯了:" + ex.Message + "," + ex.StackTrace);
-                }).Start();
+        }
 
-                File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "log" + System.IO.Path.DirectorySeparatorChar + SelfTrasationId + ".log", txtLog.Text);
-
-
-                MessageBox.Show("STEP8 發生錯誤，進行中止");
-                return;
-            }
-
-
-            #endregion
-
-
-            #region STEP9
-
-
-            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate
-            {
-                AddLog("STEP9- 廣播圖片..");
-            }));
-
-
-            try
-            {
-                if (txtImageFilePath.Text.Trim().Length > 0)
-                {
-                   
-                    var userCount = 0;
-                    foreach (var c in step7Result.contacts)
-                    {
-                        if (!c.blocked)
-                        {
-                            try
-                            {
-                                var objectId = LogicHandler.SendMessage.CreateObject(step5Result.Item4, step5Result.Item1, logPath);
-                                LogicHandler.SendMessage.UploadFileToObject(step5Result.Item4, objectId, txtImageFilePath.Text.Trim(), logPath);
-                                var fileInfo = new FileInfo(txtImageFilePath.Text.Trim());
-                                
-                                LogicHandler.SendMessage.SendIImage(step6Result.Item1, objectId, c.person_id, fileInfo.Name, logPath);
-                                
-                                Thread.Sleep(196);
-                                userCount++;
-                                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate
-                                {
-                                    AddLog("已寄送圖片給" + c.display_name + " , 第" + userCount + "筆");
-
-                                }));
-                            }
-                            catch (Exception ex)
-                            {
-                                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate
-                                {
-                                    AddLog("ERROR 已寄送圖片給" + c.display_name + " , 失敗，請手動寄送" + ex.Message);
-
-                                }));
-                                
-                                continue;
-                            }
-
-                        }
-                    }
-
-                    Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate
-                    {
-                        AddLog("STEP9 寄送圖片成功  !!");
-                        AddLog("STEP9 寄送 " + userCount + " 筆");
-                    }));
-
-
-                }
-                else
-                {
-                    AddLog("STEP9 無圖片所以跳過不廣播了  !!");
-                }
-
-            }
-            catch (Exception ex)
-            {
-                new Thread(() =>
-                {
-                    AddLog("STEP9 出錯了:" + ex.Message + "," + ex.StackTrace);
-                }).Start();
-
-                File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "log" + System.IO.Path.DirectorySeparatorChar + SelfTrasationId + ".log", txtLog.Text);
-
-
-                MessageBox.Show("STEP9 發生錯誤，進行中止");
-                return;
-            }
-
-
-            #endregion
+        private void btnClearImage_Click(object sender, RoutedEventArgs e)
+        {
+            imageUploadPreview.Source = null;
+            txtImageFilePath.Text = "";
         }
     }
 }
