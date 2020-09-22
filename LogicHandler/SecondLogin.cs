@@ -30,7 +30,7 @@ namespace LazyLizard.LogicHandler
         /// Item4: ANON
         /// Item5: next url
         /// </returns>
-        public static Tuple<string, string, string, string, string> GetUrlPostAndCookies(string urlPost, string MSPRequ, string MSPOK, Dictionary<string, string> cookieCollection, string PPFT, string account, string pass, string logPath,string timestamp)
+        public static Tuple<string, string, string, string, string, string> GetUrlPostAndCookies(string urlPost, string MSPRequ, string MSPOK, Dictionary<string, string> cookieCollection, string PPFT, string account, string pass, string logPath,string timestamp)
         {
 
 
@@ -84,13 +84,29 @@ namespace LazyLizard.LogicHandler
                     File.WriteAllText(logPath + "STEP3", responseStr2);
 
                     var Token = LogicHandler.Utility.GetHTMLHiddenValueByName(responseStr2, "t");
-
                     var pprid = LogicHandler.Utility.GetHTMLHiddenValueByName(responseStr2, "pprid");
                     var NAP = LogicHandler.Utility.GetHTMLHiddenValueByName(responseStr2, "NAP");
                     var ANON = LogicHandler.Utility.GetHTMLHiddenValueByName(responseStr2, "ANON");
                     var url2 = LogicHandler.Utility.GetFormActionValueByName(responseStr2, "fmHF");
+                    var errMSG = "";
 
-                    return new Tuple<string, string, string, string, string>(Token, pprid, NAP, ANON, url2);
+                    if (String.IsNullOrEmpty(Token) &&
+                        String.IsNullOrEmpty(pprid) &&
+                        String.IsNullOrEmpty(NAP) &&
+                        String.IsNullOrEmpty(ANON) &&
+                        String.IsNullOrEmpty(url2)) {
+
+                        if (responseStr2.Contains("https://account.microsoft.com/security")) {
+                            errMSG = "請關閉二次驗證再試一次"; 
+                        }
+
+                        if (responseStr2.Contains("Your account or password is incorrect"))
+                        {
+                            errMSG = "帳號或密碼錯誤";
+                        }
+                    }
+
+                    return new Tuple<string, string, string, string, string, string>(Token, pprid, NAP, ANON, url2, errMSG);
 
 
                 }

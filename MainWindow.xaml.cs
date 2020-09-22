@@ -49,7 +49,7 @@ namespace LazyLizard
             IsDebug = true;
             CheckDebug();
 
-            MessageBox.Show("版本為 0.4.200603 .", "版本資訊", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show("版本為 0.4.200922 .", "版本資訊", MessageBoxButton.OK, MessageBoxImage.Information);
             //Reference :
             //https://skpy.t.allofti.me/
             //http://wayneprogramcity.blogspot.com/2016/05/skype-apicskype.html
@@ -463,7 +463,7 @@ namespace LazyLizard
 
 
             #region STEP3
-            Tuple<string, string, string, string, string> step3Result = null;
+            Tuple<string, string, string, string, string, string> step3Result = null;
 
             Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate
             {
@@ -481,16 +481,15 @@ namespace LazyLizard
                         AddLog("Next Path :" + step2Result.Item1);
                         AddLog("STEP3 第二道穿越成功了  !!");
                     }));
-
                 }
                 else
                 {
                     Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new ThreadStart(delegate
                     {
-                        AddLog("STEP3 穿越失敗，沒有拿到 參數");
+                        AddLog("STEP3 穿越失敗，沒有拿到 參數; 原因:"+ step3Result.Item6);
                     }));
 
-                    MessageBox.Show("STEP3 發生錯誤，進行中止:沒有拿到 t and nextpath，可能是你打開二次驗證請關閉，或是你帳號密碼錯誤");
+                    MessageBox.Show("STEP3 發生錯誤，進行中止; "+ step3Result.Item6);
                     File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "log" + System.IO.Path.DirectorySeparatorChar + SelfTrasationId + ".log", txtLog.Text);
                     return;
 
