@@ -12,7 +12,7 @@ namespace LazyLizard.LogicHandler
         private static int Count { get; set; }
 
 
-        public static void UploadFileToObject(string skypeToken, string imageId, string imageLocalFilePath, string logPath)
+        public static void UploadFileToObject(string skypeToken, string imageId, string imageLocalFilePath, string logPath,byte[] imageSrcByte)
         {
             using (WebClient client = new WebClient())
             {
@@ -21,10 +21,10 @@ namespace LazyLizard.LogicHandler
                 client.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36");
                 client.Headers.Add("Content-Type", "application");
 
-                var fileInfo = new FileInfo(imageLocalFilePath);
+             //   var fileInfo = new FileInfo(imageLocalFilePath);
 
-                var res = client.UploadData("https://api.asm.skype.com/v1/objects/" + imageId + "/content/imgpsh", "PUT", File.ReadAllBytes(imageLocalFilePath));
-
+                // var res = client.UploadData("https://api.asm.skype.com/v1/objects/" + imageId + "/content/imgpsh", "PUT", File.ReadAllBytes(imageLocalFilePath));
+                var res = client.UploadData("https://api.asm.skype.com/v1/objects/" + imageId + "/content/imgpsh", "PUT", imageSrcByte);
 
             }
         }
@@ -66,18 +66,25 @@ namespace LazyLizard.LogicHandler
         }
 
 
-        public static void SendIImage(string registrationToken, string objectId, string userId, string filename, string logPath)
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="registrationToken"></param>
+        /// <param name="objectId">Receiver User Id</param>
+        /// <param name="userId"></param>
+        public static void SendIImage(string registrationToken, string objectId, string userId, string imageName,string text,string sentServer= "https://client-s.gateway.messenger.live.com/v1/users/ME/")
         {
 
-            var src5 = "<URIObject type=\"Picture.1\" uri=\"https://api.asm.skype.com/v1/objects/" + objectId + "\"" +
+            var sourceTempalate = "<URIObject type=\"Picture.1\" uri=\"https://api.asm.skype.com/v1/objects/" + objectId + "\"" +
               " url_thumbnail=\"https://api.asm.skype.com/v1/objects/" + objectId + "/views/imgt1\"><Title /><Description />" +
-              "<meta type=\"photo\" originalName=\"ddd.jpg\"/>" +
-              "<OriginalName v=\"ddd.jpg\"/>" +
+              "<meta type=\"photo\" originalName=\""+ imageName + "\"/>" +
+              "<OriginalName v=\"" + imageName + "\"/>" +
               "</URIObject>";
 
 
             //POST https://client-s.gateway.messenger.live.com/v1/users/ME/conversations/(string: id)/messages
-            HttpWebRequest httpWebRequest = WebRequest.Create("https://client-s.gateway.messenger.live.com/v1/users/ME/conversations/" + userId + "/messages") as HttpWebRequest;
+            HttpWebRequest httpWebRequest = WebRequest.Create(sentServer+"conversations/" + userId + "/messages") as HttpWebRequest;
             httpWebRequest.Method = "POST";
             httpWebRequest.UserAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:35.0) Gecko/20100101 Firefox/35.0";
             httpWebRequest.Accept = "application/json, text/javascript";
@@ -93,25 +100,34 @@ namespace LazyLizard.LogicHandler
             httpWebRequest.Referer = "https://web.skype.com/zh-Hant/";
             httpWebRequest.Headers.Add("Origin", "https://web.skype.com");
             httpWebRequest.KeepAlive = true;
+            var str = "";
+            if (string.IsNullOrEmpty(text))
+            {
+                str = sourceTempalate;
+            }
+            else {
+                str = sourceTempalate+"\r\n"+text;
+            }
+
             byte[] bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject((object)new Dictionary<string, object>()
-      {
-        {
-          "content",
-           (object)src5
-        },
-       {
-          "messagetype",
-          (object) "RichText/UriObject"
-        },
-        {
-          "contenttype",
-          (object)src5
-        },
-        {
-          "clientmessageid",
-          (object) DateTime.Now.Ticks
-        }
-      }));
+            {
+            {
+                "content",
+                (object)str
+            },
+            {
+                "messagetype",
+                (object) "RichText/UriObject"
+            },
+            {
+                "contenttype",
+                (object)str
+            },
+            {
+                "clientmessageid",
+                (object) DateTime.Now.Ticks
+            }
+            }));
             using (Stream requestStream = httpWebRequest.GetRequestStream())
             {
                 requestStream.Write(bytes, 0, bytes.Length);
@@ -123,12 +139,12 @@ namespace LazyLizard.LogicHandler
             }
         }
 
-        public static void SendText(string registrationToken, string message, string id)
+        public static void SendText(string registrationToken, string message, string id, string sentServer = "https://client-s.gateway.messenger.live.com/v1/users/ME/")
         {
 
 
             //POST https://client-s.gateway.messenger.live.com/v1/users/ME/conversations/(string: id)/messages
-            HttpWebRequest httpWebRequest = WebRequest.Create("https://client-s.gateway.messenger.live.com/v1/users/ME/conversations/" + id + "/messages") as HttpWebRequest;
+            HttpWebRequest httpWebRequest = WebRequest.Create(sentServer + "conversations/" + id + "/messages") as HttpWebRequest;
             httpWebRequest.Method = "POST";
             httpWebRequest.UserAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:35.0) Gecko/20100101 Firefox/35.0";
             httpWebRequest.Accept = "application/json, text/javascript";
@@ -145,24 +161,25 @@ namespace LazyLizard.LogicHandler
             httpWebRequest.Headers.Add("Origin", "https://web.skype.com");
             httpWebRequest.KeepAlive = true;
             byte[] bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject((object)new Dictionary<string, object>()
-      {
-        {
-          "content",
-           (object)message
-        },
-        {
-          "messagetype",
-          (object) "Text"
-        },
-        {
-          "contenttype",
-          (object)"text"
-        },
-        {
-          "clientmessageid",
-          (object) DateTime.Now.Ticks
-        }
-      }));
+            {
+            {
+                "content",
+                (object)message
+            },
+            {
+                "messagetype",
+                (object) "Text"
+            },
+            {
+                "contenttype",
+                (object)"text"
+            },
+            {
+                "clientmessageid",
+                (object) DateTime.Now.Ticks
+            }
+            }));
+
             using (Stream requestStream = httpWebRequest.GetRequestStream())
             {
                 requestStream.Write(bytes, 0, bytes.Length);

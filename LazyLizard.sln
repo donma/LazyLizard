@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29519.181
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LazyLizard", "LazyLizard.csproj", "{6F6D7E8D-A46F-4F55-A27F-FDFD12FB83BA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LazyLizard", "LazyLizard.csproj", "{05E98F7F-2793-4D1A-9AE5-20D14F3FF398}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,23 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6F6D7E8D-A46F-4F55-A27F-FDFD12FB83BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6F6D7E8D-A46F-4F55-A27F-FDFD12FB83BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6F6D7E8D-A46F-4F55-A27F-FDFD12FB83BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6F6D7E8D-A46F-4F55-A27F-FDFD12FB83BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05E98F7F-2793-4D1A-9AE5-20D14F3FF398}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05E98F7F-2793-4D1A-9AE5-20D14F3FF398}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05E98F7F-2793-4D1A-9AE5-20D14F3FF398}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05E98F7F-2793-4D1A-9AE5-20D14F3FF398}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {D73259AA-2304-4F55-A9AF-4BEAE5FD970B}
+		SolutionGuid = {F3971A88-6CDB-4A86-8419-41901281B9C2}
+	EndGlobalSection
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 2
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://no2don.visualstudio.com/
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = LazyLizard.csproj
+		SccLocalPath1 = .
 	EndGlobalSection
 EndGlobal

@@ -13,7 +13,12 @@ namespace LazyLizard.LogicHandler
 
             //Contact list
             string requestUriStringUL = "https://contacts.skype.com/contacts/v2/users/" + skypeId + "/contacts";
-            //    string requestUriStringUL = "https://contacts.skype.com/contacts/v1/users/" + skypeid + "/contacts/";
+
+            //string requestUriStringUL = "https://client-s.gateway.messenger.live.com/v1/users/ME/conversations/" + skypeId+ "/messages";
+
+            //string requestUriStringUL = "https://contacts.skype.com/contacts/v2/users/" + skypeId + "/groups";
+
+            //string requestUriStringUL = "https://contacts.skype.com/contacts/v2/users/" + "self";
 
             HttpWebRequest httpWebRequest10 = WebRequest.Create(requestUriStringUL) as HttpWebRequest;
             httpWebRequest10.Method = "GET";
